@@ -1,0 +1,13 @@
+diff --git a/src/multimedia/configure.cmake b/src/multimedia/configure.cmake
+index 7bb46ab..e4aa26b 100644
+--- a/src/multimedia/configure.cmake
++++ b/src/multimedia/configure.cmake
+@@ -135,7 +135,7 @@ qt_feature("pipewire_screencapture" PRIVATE
+ qt_feature("alsa" PUBLIC PRIVATE
+     LABEL "ALSA (experimental)"
+     AUTODETECT false
+-    CONDITION UNIX AND NOT QNX AND ALSA_FOUND AND NOT QT_FEATURE_pulseaudio
++    CONDITION UNIX AND ALSA_FOUND AND NOT QT_FEATURE_pulseaudio
+ )
+ qt_feature("avfoundation" PUBLIC PRIVATE
+     LABEL "AVFoundation"

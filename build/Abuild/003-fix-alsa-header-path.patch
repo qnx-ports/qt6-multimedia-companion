@@ -1,0 +1,100 @@
+diff --git a/src/multimedia/CMakeLists.txt b/src/multimedia/CMakeLists.txt
+index e40a041..a7f3733 100644
+--- a/src/multimedia/CMakeLists.txt
++++ b/src/multimedia/CMakeLists.txt
+@@ -340,7 +340,7 @@ qt_internal_extend_target(Multimedia CONDITION IOS OR TVOS OR VISIONOS
+         ${FWFoundation}
+ )
+ 
+-qt_internal_extend_target(Multimedia CONDITION QNX
++qt_internal_extend_target(Multimedia CONDITION OFF
+     SOURCES
+         qnx/qqnxaudiodevice.cpp qnx/qqnxaudiodevice_p.h
+         qnx/qqnxaudiosink.cpp qnx/qqnxaudiosink_p.h
+diff --git a/src/multimedia/platform/qplatformaudiodevices.cpp b/src/multimedia/platform/qplatformaudiodevices.cpp
+index f5221c2..fd431aa 100644
+--- a/src/multimedia/platform/qplatformaudiodevices.cpp
++++ b/src/multimedia/platform/qplatformaudiodevices.cpp
+@@ -26,7 +26,7 @@
+ #if QT_CONFIG(pipewire)
+ #  include <QtMultimedia/private/qpipewire_audiodevices_p.h>
+ #endif
+-#if defined(Q_OS_QNX)
++#if 0
+ #  include <QtMultimedia/private/qqnxaudiodevices_p.h>
+ #endif
+ #if defined(Q_OS_WASM)
+@@ -65,7 +65,7 @@ std::unique_ptr<QPlatformAudioDevices> QPlatformAudioDevices::create()
+ #if QT_CONFIG(alsa)
+     return std::make_unique<QAlsaAudioDevices>();
+ #endif
+-#if defined(Q_OS_QNX)
++#if 0
+     return std::make_unique<QQnxAudioDevices>();
+ #endif
+ #if defined(Q_OS_WASM)
+diff --git a/src/multimedia/qnx/qqnxaudiodevice.cpp b/src/multimedia/qnx/qqnxaudiodevice.cpp
+index 900f4ad..6625cc0 100644
+--- a/src/multimedia/qnx/qqnxaudiodevice.cpp
++++ b/src/multimedia/qnx/qqnxaudiodevice.cpp
+@@ -8,7 +8,7 @@
+ 
+ #include <array>
+ 
+-#include <sys/asoundlib.h>
++#include <alsa/asoundlib.h>
+ 
+ using namespace QnxAudioUtils;
+ 
+diff --git a/src/multimedia/qnx/qqnxaudiosink.cpp b/src/multimedia/qnx/qqnxaudiosink.cpp
+index e799967..13226bc 100644
+--- a/src/multimedia/qnx/qqnxaudiosink.cpp
++++ b/src/multimedia/qnx/qqnxaudiosink.cpp
+@@ -4,7 +4,7 @@
+ #include "qqnxaudiosink_p.h"
+ 
+ #include <private/qaudiohelpers_p.h>
+-#include <sys/asoundlib.h>
++#include <alsa/asoundlib.h>
+ #include <sys/asound_common.h>
+ 
+ #include <algorithm>
+diff --git a/src/multimedia/qnx/qqnxaudiosink_p.h b/src/multimedia/qnx/qqnxaudiosink_p.h
+index ffbbd52..4646aa8 100644
+--- a/src/multimedia/qnx/qqnxaudiosink_p.h
++++ b/src/multimedia/qnx/qqnxaudiosink_p.h
+@@ -24,7 +24,7 @@
+ #include <QIODevice>
+ #include <QSocketNotifier>
+ 
+-#include <sys/asoundlib.h>
++#include <alsa/asoundlib.h>
+ #include <sys/neutrino.h>
+ 
+ QT_BEGIN_NAMESPACE
+diff --git a/src/multimedia/qnx/qqnxaudiosource_p.h b/src/multimedia/qnx/qqnxaudiosource_p.h
+index 15e5996..69090e5 100644
+--- a/src/multimedia/qnx/qqnxaudiosource_p.h
++++ b/src/multimedia/qnx/qqnxaudiosource_p.h
+@@ -24,7 +24,7 @@
+ #include <QElapsedTimer>
+ #include <QTimer>
+ 
+-#include <sys/asoundlib.h>
++#include <alsa/asoundlib.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 
+diff --git a/src/multimedia/qnx/qqnxaudioutils_p.h b/src/multimedia/qnx/qqnxaudioutils_p.h
+index 6910359..212524c 100644
+--- a/src/multimedia/qnx/qqnxaudioutils_p.h
++++ b/src/multimedia/qnx/qqnxaudioutils_p.h
+@@ -21,7 +21,7 @@
+ #include <memory>
+ #include <optional>
+ 
+-#include <sys/asoundlib.h>
++#include <alsa/asoundlib.h>
+ 
+ QT_BEGIN_NAMESPACE
+ 

@@ -1,0 +1,13 @@
+diff --git a/src/3rdparty/eigen/Eigen/src/Core/arch/SSE/PacketMath.h b/src/3rdparty/eigen/Eigen/src/Core/arch/SSE/PacketMath.h
+index db102c7..ee5bfe9 100644
+--- a/src/3rdparty/eigen/Eigen/src/Core/arch/SSE/PacketMath.h
++++ b/src/3rdparty/eigen/Eigen/src/Core/arch/SSE/PacketMath.h
+@@ -494,7 +494,7 @@ template<> EIGEN_STRONG_INLINE Packet4i pmin<Packet4i>(const Packet4i& a, const
+ 
+ 
+ template<> EIGEN_STRONG_INLINE Packet4f pmax<Packet4f>(const Packet4f& a, const Packet4f& b) {
+-#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63
++#if EIGEN_COMP_GNUC && EIGEN_COMP_GNUC < 63 && !EIGEN_COMP_CLANG
+   // There appears to be a bug in GCC, by which the optimizer may
+   // flip the argument order in calls to _mm_max_ps, so we have to
+   // resort to inline ASM here. This is supposed to be fixed in gcc6.3,

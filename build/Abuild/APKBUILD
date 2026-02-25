@@ -1,0 +1,147 @@
+# Alpine-Maintainer: Bart Ribbers <bribbers@disroot.org>
+# Maintainer: Felix Xing <fxing@qnx.com>
+pkgname=qt6-multimedia
+pkgver=6.10.0
+pkgrel=0
+pkgdesc="Classes for audio, video, radio and camera functionality"
+url="https://qt.io/"
+arch="all"
+license="LGPL-2.1-only AND LGPL-3.0-only AND GPL-3.0-only AND Qt-GPL-exception-1.0"
+depends="
+    libc++
+    qt6-base
+    qt6-declarative
+    qt6-quick3d
+    qnx-alsa
+    qnx-egl
+    qnx-gles
+    qnx-io-sock
+    "
+depends_dev="
+    $pkgname-ffmpeg=$pkgver-r$pkgrel
+    $pkgname-gstreamer=$pkgver-r$pkgrel
+    ffmpeg-dev
+    gst-plugins-base-dev
+    gst-plugins-bad-dev
+    gstreamer-dev
+    qt6-base-dev
+    qt6-base-private-dev
+    qt6-declarative-dev
+    qt6-quick3d-dev
+    qt6-shadertools-dev
+    qt6-svg-dev
+    qnx-alsa-dev
+    "
+makedepends="$depends_dev
+    cmake
+    perl
+    ninja
+    qt6-declarative-private-dev
+    "
+subpackages="
+    $pkgname-dbg
+    $pkgname-dev
+    $pkgname-ffmpeg
+    $pkgname-gstreamer
+    "
+
+source="https://download.qt.io/official_releases/qt/${pkgver%.*}/${pkgver/_/-}/submodules/qtmultimedia-everywhere-src-${pkgver/_/-}.tar.xz
+        001-enable-alsa-for-qnx.patch
+        002-disable-some-inline-asm-for-clang.patch
+        003-fix-alsa-header-path.patch
+    "
+options="!check" # Tests don't run
+builddir="$srcdir/qtmultimedia-everywhere-src-${pkgver/_/-}"
+
+build() {
+     # It's qcc here, but compiled with clang on the selfhosted system
+    if [[ $CARCH == "x86_64" ]]; then
+        _triplet="qnx-x86-64-qcc"
+    elif [[ $CARCH == "aarch64" ]]; then
+        _triplet="qnx-aarch64le-qcc"
+    else
+        die "$CARCH not supported"
+    fi
+
+    _warn="-Wno-character-conversion"
+
+    export CC=clang
+    export CXX=clang++
+    export CFLAGS="$_warn"
+    export CXXFLAGS="$_warn"
+    export LDFLAGS="-lsocket"
+    export LD_LIBRARY_PATH="$builddir/build/lib:$LD_LIBRARY_PATH"
+
+    cmake -B build -G Ninja \
+        -DCMAKE_SKIP_RPATH=ON \
+        -DQT_QMAKE_TARGET_MKSPEC=$_triplet \
+        -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+        -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_MESSAGE_LOG_LEVEL=STATUS \
+        -DFEATURE_pkg_config=ON \
+        -DFEATURE_alsa=ON \
+        -DFEATURE_gstreamer=ON
+
+    cmake --build build --parallel
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}
+
+dev() {
+    default_dev
+
+    amove usr/lib/qt6/sbom
+}
+
+ffmpeg() {
+    pkgdesc="$pkgdesc (ffmpeg plugin)"
+    depends="
+        ffmpeg-libavcodec
+        ffmpeg-libavformat
+        ffmpeg-libavutil
+        ffmpeg-libswresample
+        ffmpeg-libswscale
+        libc++
+        qnx-egl
+        qnx-gles
+        qnx-io-sock
+        qt6-base
+    "
+    # autopull if main dep exists anyway
+    install_if="$pkgname=$pkgver-r$pkgrel ffmpeg-libavcodec"
+
+    amove usr/lib/qt6/plugins/multimedia/libffmpegmediaplugin.so
+}
+
+gstreamer() {
+    pkgdesc="$pkgdesc (gstreamer plugin)"
+    depends="
+        glib
+        gst-plugins-bad
+        gst-plugins-base
+        gstreamer
+        libc++
+        libintl
+        qnx-egl
+        qnx-gles
+        qnx-io-sock
+        qt6-base
+        wayland
+    "
+    # unlike above, these deps are not that obvious.
+    # -base is pulled by e.g. gtk4 anyway, but practically nothing
+    # would use this unless people added good, etc. so use that
+    install_if="$pkgname=$pkgver-r$pkgrel gst-plugins-good"
+
+    amove usr/lib/qt6/plugins/multimedia/libgstreamermediaplugin.so
+}
+
+sha512sums="
+2b67d53fd004b5c2a98893253f21f47f980b08ee34d868b9acd5935211363e70e6fe189c950a8ce9dff752572b6b3055942aacf561523545b16cd105a7eb29fa  qtmultimedia-everywhere-src-6.10.0.tar.xz
+6250c7afbe8f25bd28f8a4207f6d2c50aeb269562c657805f3bfe00b3c2fd081174dddf6fefec30c65282919c23ae43dc8bcc8f2df2c81eeab637752c68d029e  001-enable-alsa-for-qnx.patch
+bae78c6ec141f52897cd9a88efdd69d74224b76a434c35fe0385352ce0609e88a73e8b68d4bcf3c373bc76e51be8515c8827463250eedd09f72a18228cf64329  002-disable-some-inline-asm-for-clang.patch
+7dcd67de0d932999d009f4418be610d19b897c86b0bd5d9abca7be6daf9bc6fcaa9b2e2d0cc56c776fd0152f3977eb0ae9889e77d4cd065fe04f19f7b830aebc  003-fix-alsa-header-path.patch
+"
