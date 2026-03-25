@@ -2,7 +2,7 @@
 # Maintainer: Felix Xing <fxing@qnx.com>
 pkgname=qt6-multimedia
 pkgver=6.10.0
-pkgrel=${pkgrel:-0}
+pkgrel=0
 pkgdesc="Classes for audio, video, radio and camera functionality"
 url="https://qt.io/"
 arch="all"
@@ -139,7 +139,6 @@ gstreamer() {
     amove usr/lib/qt6/plugins/multimedia/libgstreamermediaplugin.so
 }
 
-options="$options ${DISABLE_CHECK:+!check}"
 sha512sums="
 2b67d53fd004b5c2a98893253f21f47f980b08ee34d868b9acd5935211363e70e6fe189c950a8ce9dff752572b6b3055942aacf561523545b16cd105a7eb29fa  qtmultimedia-everywhere-src-6.10.0.tar.xz
 6250c7afbe8f25bd28f8a4207f6d2c50aeb269562c657805f3bfe00b3c2fd081174dddf6fefec30c65282919c23ae43dc8bcc8f2df2c81eeab637752c68d029e  001-enable-alsa-for-qnx.patch
